@@ -1,0 +1,232 @@
+<html>
+	<head>
+		<title>Shodan Gokyu Quiz (2026)</title>
+		<style>
+		body {
+		  margin: 0;
+		  font-family: Arial, sans-serif;
+		  display: flex;
+		  justify-content: center;
+		  align-items: center;
+		  height: 100vh;
+		  background: #282b30;
+		  color: white;
+		}
+
+		header {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100vw;
+		}
+		
+		footer {
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			width: 100vw;
+		}
+		
+		header h1 {
+			text-align: center;
+		}
+		
+		header h2 {
+			text-align: center;
+		}
+
+		.container {
+		  text-align: center;
+		}
+
+		.kind {
+		  font-size: 1.5rem;
+		  margin-bottom: 10px;
+		}
+		a {
+		  color: #0077cc;
+		  text-decoration: none;
+		}
+		a:hover {
+		  text-decoration: underline;
+		}
+		.name a {
+		  font-size: 3rem;
+		}
+
+		button {
+		  margin-top: 30px;
+		  padding: 10px 20px;
+		  font-size: 1rem;
+		  cursor: pointer;
+		  background-color: #0077cc;
+		  color: white;
+		  border-radius: 8px;
+		  border: none;
+		}
+		
+		button.next {
+			background-color: rgb(240, 240, 240);
+			color: black;
+		}
+		
+		button.restart {
+			background-color: red;
+			color: white;
+		}
+	  </style>
+	</head>
+	<body>
+		<header>
+			<h1>Shodan Gokyu Quiz</h1>
+			<h2>2026</h2>
+		</header>
+
+		<div class="container">
+			<div class="kind" id="kind"></div>
+
+			<div class="name" id="name"></div>
+
+			<button id="nextBtn">Start</button>
+		</div>
+		
+		<footer>
+		Special thanks to <a href="https://wanakana.com/">wanakana</a> for Romanji to Kana conversion.
+		</footer>
+
+		<script src="https://unpkg.com/wanakana"></script>
+		<script>
+		var moves = [
+			{name: "seoi-nage", kind: "te-waza", uri: "https://www.youtube.com/watch?v=zIq0xI0ogxk"},
+			{name: "ippon seoi-nage", kind: "te-waza", uri: "https://www.youtube.com/watch?v=FQnOlCxo4oI"},
+			{name: "tai-otoshi", kind: "te-waza", uri: "https://www.youtube.com/watch?v=4x6S3Q-Ktv8"},
+			{name: "kata-guruma", kind: "te-waza", uri: "https://www.youtube.com/watch?v=cnHRhSy8yi4"},
+			{name: "sukui-nage", kind: "te-waza", uri: "https://www.youtube.com/watch?v=vU6aJ2kFxoI"},
+			{name: "uki-otoshi", kind: "te-waza", uri: "https://www.youtube.com/watch?v=6H5tmncOY4Q"},
+			{name: "sumi-otoshi", kind: "te-waza", uri: "https://www.youtube.com/watch?v=lLU9wv52ni0"},
+			
+			{name: "uki-goshi", kind: "koshi-waza", uri: "https://www.youtube.com/watch?v=bPKwtB4lyOQ"},
+			{name: "o-goshi", kind: "koshi-waza", uri: "https://www.youtube.com/watch?v=yhu1mfy2vJ4"},
+			{name: "koshi-guruma", kind: "koshi-waza", uri: "https://www.youtube.com/watch?v=SU7Id6uVJ44"},
+			{name: "tsurikomi-goshi", kind: "koshi-waza", uri: "https://www.youtube.com/watch?v=McfzA0yRVt4"},
+			{name: "harai-goshi", kind: "koshi-waza", uri: "https://www.youtube.com/watch?v=qTo8HlAAkOo"},
+			{name: "tsuri-goshi", kind: "koshi-waza", uri: "https://www.youtube.com/watch?v=51Htlp7xEvE"},
+			{name: "hane-goshi", kind: "koshi-waza", uri: "https://www.youtube.com/watch?v=M9_7De6A1kk"},
+			{name: "utsuri-goshi", kind: "koshi-waza", uri: "https://www.youtube.com/watch?v=4pQd_bEnlf0"},
+			{name: "ushiro-goshi", kind: "koshi-waza", uri: "https://www.youtube.com/watch?v=ORIYstuxYT8"},
+			
+			{name: "de-ashi-harai", kind: "ashi-waza", uri: "https://www.youtube.com/watch?v=4BUUvqxi_Kk"},
+			{name: "hiza-guruma", kind: "ashi-waza", uri: "https://www.youtube.com/watch?v=JPJx9-oAVns"},
+			{name: "sasae-tsurikomi-ashi", kind: "ashi-waza", uri: "https://www.youtube.com/watch?v=699i--pvYmE"},
+			{name: "o-soto-gari", kind: "ashi-waza", uri: "https://www.youtube.com/watch?v=c-A_nP7mKAc"},
+			{name: "o-uchi-gari", kind: "ashi-waza", uri: "https://www.youtube.com/watch?v=0itJFhV9pDQ"},
+			{name: "ko-soto-gari", kind: "ashi-waza", uri: "https://www.youtube.com/watch?v=jeQ541ScLB4"},
+			{name: "ko-uchi-gari", kind: "ashi-waza", uri: "https://www.youtube.com/watch?v=3Jb3tZvr9Ng"},
+			{name: "okuri-ashi-harai", kind: "ashi-waza", uri: "https://www.youtube.com/watch?v=nw1ZdRjrdRI"},
+			{name: "uchi-mata", kind: "ashi-waza", uri: "https://www.youtube.com/watch?v=iUpSu5J-bgw"},
+			{name: "ko-soto-gake", kind: "ashi-waza", uri: "https://www.youtube.com/watch?v=8b6kY4s4zH4"},
+			{name: "ashi-guruma", kind: "ashi-waza", uri: "https://www.youtube.com/watch?v=ROeayhvom9U"},
+			{name: "o-soto-otoshi", kind: "ashi-waza", uri: "https://www.youtube.com/watch?v=2DsVvDw7b8g"},
+			{name: "o-guruma", kind: "ashi-waza", uri: "https://www.youtube.com/watch?v=SnZciTAY9vc"},
+			{name: "o-soto-guruma", kind: "ashi-waza", uri: "https://www.youtube.com/watch?v=92KbCm6pQeI"},
+			
+			{name: "tomoe-nage", kind: "masutemi-waza", uri: "https://www.youtube.com/watch?v=880WbHvHv6A"},
+			{name: "sumi-gaeshi", kind: "masutemi-waza", uri: "https://www.youtube.com/watch?v=5VhduA5xkbA"},
+			{name: "ura-nage", kind: "masutemi-waza", uri: "https://www.youtube.com/watch?v=Fgi9b8DJ5sQ"},
+			
+			{name: "yoko-otoshi", kind: "yoko-sutemi-waza", uri: "https://www.youtube.com/watch?v=MnNG67pF_a0"},
+			{name: "tani-otoshi", kind: "yoko-sutemi-waza", uri: "https://www.youtube.com/watch?v=3b9Me3Fohpk"},
+			{name: "hane-makikomi", kind: "yoko-sutemi-waza", uri: "https://www.youtube.com/watch?v=6CRBGLGz9j8"},
+			{name: "soto-makikomi", kind: "yoko-sutemi-waza", uri: "https://www.youtube.com/watch?v=bWG9O1BVKtQ"},
+			{name: "uki-waza", kind: "yoko-sutemi-waza", uri: "https://www.youtube.com/watch?v=weVOpJ63gII"},
+			{name: "yoko-wakare", kind: "yoko-sutemi-waza", uri: "https://www.youtube.com/watch?v=bp1tscHlePI"},
+			{name: "yoko-guruma", kind: "yoko-sutemi-waza", uri: "https://www.youtube.com/watch?v=MehP6I5cY2c"},
+			{name: "yoko-gake", kind: "yoko-sutemi-waza", uri: "https://www.youtube.com/watch?v=tP1Sj1uDfSo"},
+			
+			{name: "kesa-gatame", kind: "osaekomi-waza", uri: "https://www.youtube.com/watch?v=NDaQuJOFBYk"},
+			{name: "kata-gatame", kind: "osaekomi-waza", uri: "https://www.youtube.com/watch?v=zQR3IOXxO_Q"},
+			{name: "kuzure-kami-shiho-gatame", kind: "osaekomi-waza", uri: "https://www.youtube.com/watch?v=YUrogQWdwiY"},
+			{name: "yoko-shiho-gatame", kind: "osaekomi-waza", uri: "https://www.youtube.com/watch?v=TT7XJVSEQxA"},
+			{name: "tate-shiho-gatame", kind: "osaekomi-waza", uri: "https://www.youtube.com/watch?v=55-rFmBx53g"},
+			{name: "kuzure-kesa-gatame", kind: "osaekomi-waza", uri: "https://www.youtube.com/watch?v=Q2fb9jaoUFQ"},
+			{name: "kami-shiho-gatame", kind: "osaekomi-waza", uri: "https://www.youtube.com/watch?v=HFuMjOv0WN8"},
+			
+			{name: "nami-juji-jime", kind: "shime-waza", uri: "https://www.youtube.com/watch?v=k2cHry9HByQ"},
+			{name: "gyaku-juji-jime", kind: "shime-waza", uri: "https://www.youtube.com/watch?v=t3tQriIPdlI"},
+			{name: "kata-juji-jime", kind: "shime-waza", uri: "https://www.youtube.com/watch?v=3VZVUAmiMD8"},
+			{name: "hadaka-jime", kind: "shime-waza", uri: "https://www.youtube.com/watch?v=9f0n8jez7iA"},
+			{name: "okuri-eri-jime", kind: "shime-waza", uri: "https://www.youtube.com/watch?v=EiqyoVcIAi8"},
+			{name: "kataha-jime", kind: "shime-waza", uri: "https://www.youtube.com/watch?v=yaTGgRjnwB8"},
+			
+			{name: "ude-garami", kind: "kansetsu-waza", uri: "https://www.youtube.com/watch?v=AIlTvZb4RlE"},
+			{name: "ude-hishigi-juji-gatame", kind: "kansetsu-waza", uri: "https://www.youtube.com/watch?v=OWgSOlCuMXw"},
+			{name: "ude-hishigi-ude-gatame", kind: "kansetsu-waza", uri: "https://www.youtube.com/watch?v=SBf0aTma1VI"},
+			{name: "ude-hishigi-hiza-gatame", kind: "kansetsu-waza", uri: "https://www.youtube.com/watch?v=H2HtAJdiJcE"},
+			{name: "ude-hishigi-waki-gatame", kind: "kansetsu-waza", uri: "https://www.youtube.com/watch?v=8F5p1zuJRG0"},
+			{name: "ude-hishigi-hara-gatame", kind: "kansetsu-waza", uri: "https://www.youtube.com/watch?v=ZzEycg8R_9M"},
+		];
+
+		const kindEl = document.getElementById("kind");
+		const nameEl = document.getElementById("name");
+		const nextBtn = document.getElementById("nextBtn");
+
+		const voices = speechSynthesis.getVoices();
+		const jaVoice = voices.find(v => v.lang === 'ja-JP');
+
+		function speakJapanese(romaji) {
+		  const kana = wanakana.toKana(romaji);
+
+		  const utterance = new SpeechSynthesisUtterance(kana);
+		  utterance.lang = 'ja-JP';
+
+		  if (jaVoice) {
+			utterance.voice = jaVoice;
+		  }
+
+		  speechSynthesis.speak(utterance);
+		}
+
+		function shuffle(array) {
+			let currentIndex = array.length;
+
+			// While there remain elements to shuffle...
+			while (currentIndex != 0) {
+				// Pick a remaining element...
+				let randomIndex = Math.floor(Math.random() * currentIndex);
+				currentIndex--;
+
+				// And swap it with the current element.
+				[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+			}
+		}
+
+		var current_index = -1;
+		shuffle(moves);
+
+		nextBtn.addEventListener("click", () => {
+			if (current_index < 0 || current_index > moves.length) {
+				current_index = 0;
+				shuffle(moves);
+			}
+			
+			const randomIndex = current_index;
+			const item = moves[randomIndex];
+
+			kindEl.textContent = item.kind;
+
+			nameEl.innerHTML = `
+			<a href="${item.uri}" target="_blank" rel="noopener noreferrer">
+			  ${wanakana.toKana(item.name)}<br>${item.name}
+			</a>
+			`;
+
+			nextBtn.innerText = current_index >= (moves.length - 1) ? "Restart" : `Next ${current_index + 1}/${moves.length}`;
+			nextBtn.classList.remove("restart");
+			nextBtn.classList.remove("next");
+			nextBtn.classList.add(current_index >= (moves.length - 1) ? "restart" : "next");
+			speakJapanese(item.name);
+			current_index++;
+		});
+		</script>
+	</body>
+</html>
