@@ -40,6 +40,9 @@
 		.container {
 		  text-align: center;
 		}
+		.container.hide {
+		  display: none;	
+		}
 
 		.kind {
 		  font-size: 1.5rem;
@@ -61,10 +64,13 @@
 		  padding: 10px 20px;
 		  font-size: 1rem;
 		  cursor: pointer;
-		  background-color: #0077cc;
-		  color: white;
 		  border-radius: 8px;
 		  border: none;
+		}
+
+		button.start {
+		  background-color: #0077cc;
+		  color: white;
 		}
 		
 		button.next {
@@ -76,6 +82,10 @@
 			background-color: red;
 			color: white;
 		}
+		button.okay {
+			background-color: green;
+			color: white;
+		}
 	  </style>
 	</head>
 	<body>
@@ -83,13 +93,23 @@
 			<h1>Shodan Gokyu Quiz</h1>
 			<h2>2026</h2>
 		</header>
-
-		<div class="container">
+		<div id="intro" class="container">
+			<button id="startBtn" class="start">Start</button>
+		</div>
+		<div id="quiz" class="container hide">
 			<div class="kind" id="kind"></div>
 
 			<div class="name" id="name"></div>
 
-			<button id="nextBtn">Start</button>
+			<div> 
+				<button id="noBtn" class="restart">✗</button>
+				<span style="display: inline-block;" id="count">&nbsp;</span>
+				<button id="yesBtn" class="okay">&check;</button>
+			</div>
+		</div>
+		<div id="results" class="container hide">
+			<div id="score" class="kind"></div>
+			<button id="restartBtn" class="restart">Restart</button>
 		</div>
 		
 		<footer>
@@ -170,7 +190,8 @@
 
 		const kindEl = document.getElementById("kind");
 		const nameEl = document.getElementById("name");
-		const nextBtn = document.getElementById("nextBtn");
+		const countEl = document.getElementById("count");
+		const scoreEl = document.getElementById("score");
 
 		const voices = speechSynthesis.getVoices();
 		const jaVoice = voices.find(v => v.lang === 'ja-JP');
@@ -202,19 +223,45 @@
 			}
 		}
 
-		var current_index = -1;
-		shuffle(moves);
+		const noBtn = document.getElementById("noBtn");
+		const yesBtn = document.getElementById("yesBtn");
+		const startBtn = document.getElementById("startBtn");
+		const restartBtn = document.getElementById("restartBtn");
+		const STATES = {
+			Start: 1,
+			Quiz: 2,
+			Results: 3
+		};
+		let state = 0;
+		const startState = document.getElementById("intro");
+		const quizState = document.getElementById("quiz");
+		const resultState = document.getElementById("results");
+		function setState(nextState) {
+			startState.classList.add("hide");
+			quizState.classList.add("hide");
+			resultState.classList.add("hide");
 
-		nextBtn.addEventListener("click", () => {
-			if (current_index < 0 || current_index > moves.length) {
-				current_index = 0;
-				shuffle(moves);
-			}
-			
+			if (nextState == STATES.Start) {
+				startState.classList.remove("hide");
+			} else if (nextState == STATES.Quiz) {
+				quizState.classList.remove("hide");
+			} else if (nextState == STATES.Results) {
+				resultState.classList.remove("hide");
+			} 
+			state = nextState;
+		}
+		setState(STATES.Start);
+
+		let correct = 0;
+		let failed = 0;
+		var current_index = -1;
+
+		function updateQuizEntry() {
 			const randomIndex = current_index;
 			const item = moves[randomIndex];
 
 			kindEl.textContent = item.kind;
+			countEl.textContent = `${current_index + 1}/${moves.length}`;
 
 			nameEl.innerHTML = `
 			<a href="${item.uri}" target="_blank" rel="noopener noreferrer">
@@ -222,12 +269,53 @@
 			</a>
 			`;
 
-			nextBtn.innerText = current_index >= (moves.length - 1) ? "Restart" : `Next ${current_index + 1}/${moves.length}`;
-			nextBtn.classList.remove("restart");
-			nextBtn.classList.remove("next");
-			nextBtn.classList.add(current_index >= (moves.length - 1) ? "restart" : "next");
 			speakJapanese(item.name);
+		}
+			
+		startBtn.addEventListener("click", () => {
+			shuffle(moves);
+			current_index = 0;
+			setState(STATES.Quiz);
+			updateQuizEntry();
+		});
+		restartBtn.addEventListener("click", () => {
+			shuffle(moves);
+			current_index = 0;
+			setState(STATES.Quiz);
+			updateQuizEntry();
+		});
+		
+		function setScore(){
+			var total = correct + failed
+			var percent = Math.trunc(100 * (correct / total));
+			scoreEl.textContent = `${correct}/${total} (${percent}%)`;
+		}
+		
+		noBtn.addEventListener("click", () => {
+			if (current_index < 0 || current_index >= (moves.length - 1)) {
+				setState(STATES.Results);
+				setScore();
+				correct = 0;
+				failed = 0;
+				return;
+			}
+			
+			failed++;
 			current_index++;
+			updateQuizEntry();
+		});
+		yesBtn.addEventListener("click", () => {
+			if (current_index < 0 || current_index >= (moves.length - 1)) {
+				setState(STATES.Results);
+				setScore();
+				correct = 0;
+				failed = 0;
+				return;
+			}
+			
+			correct++;
+			current_index++;
+			updateQuizEntry();
 		});
 		</script>
 	</body>
