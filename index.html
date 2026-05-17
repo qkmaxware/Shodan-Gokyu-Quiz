@@ -299,7 +299,19 @@
 			var percent = Math.trunc(100 * (correct / total));
 			scoreEl.textContent = `${correct}/${total} (${percent}%)`;
 
-    mistakeEl.innerHTML = "";
+			mistakeEl.innerHTML = "";
+			if (failed_moves.length > 0) {
+				failed_moves.forEach(move => {
+					const li = document.createElement('li');
+					const a = document.createElement('a');
+					a.href = move.uri;
+					a.target = '_blank';
+					a.rel = 'noopener noreferrer';
+					a.textContent = move.name;
+					li.appendChild(a);
+					mistakeEl.appendChild(li);
+				});
+			}
 		}
 		
 		noBtn.addEventListener("click", () => {
