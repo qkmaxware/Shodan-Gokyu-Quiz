@@ -110,6 +110,7 @@
 		<div id="results" class="container hide">
 			<div id="score" class="kind"></div>
 			<button id="restartBtn" class="restart">Restart</button>
+   <ol id="mistakes"></ol>
 		</div>
 		
 		<footer>
@@ -192,6 +193,7 @@
 		const nameEl = document.getElementById("name");
 		const countEl = document.getElementById("count");
 		const scoreEl = document.getElementById("score");
+  const mistakeEl = document.getElementById("mistakes");
 
 		const voices = speechSynthesis.getVoices();
 		const jaVoice = voices.find(v => v.lang === 'ja-JP');
@@ -254,6 +256,7 @@
 
 		let correct = 0;
 		let failed = 0;
+  let failed_moves = [];
 		var current_index = -1;
 
 		function updateQuizEntry() {
@@ -275,12 +278,18 @@
 		startBtn.addEventListener("click", () => {
 			shuffle(moves);
 			current_index = 0;
+   correct = 0;
+				failed = 0;
+   failed_moves = [];
 			setState(STATES.Quiz);
 			updateQuizEntry();
 		});
 		restartBtn.addEventListener("click", () => {
 			shuffle(moves);
 			current_index = 0;
+   correct = 0;
+				failed = 0;
+   failed_moves = [];
 			setState(STATES.Quiz);
 			updateQuizEntry();
 		});
@@ -289,6 +298,8 @@
 			var total = correct + failed
 			var percent = Math.trunc(100 * (correct / total));
 			scoreEl.textContent = `${correct}/${total} (${percent}%)`;
+
+    mistakeEl.innerHTML = "";
 		}
 		
 		noBtn.addEventListener("click", () => {
@@ -297,10 +308,13 @@
 				setScore();
 				correct = 0;
 				failed = 0;
+   failed_moves = [];
 				return;
 			}
-			
+
+			const item = moves[current_index];
 			failed++;
+   failed_moves.push(item);
 			current_index++;
 			updateQuizEntry();
 		});
@@ -310,6 +324,7 @@
 				setScore();
 				correct = 0;
 				failed = 0;
+   failed_moves = [];
 				return;
 			}
 			
