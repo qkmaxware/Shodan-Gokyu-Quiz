@@ -316,6 +316,10 @@
 		
 		noBtn.addEventListener("click", () => {
 			if (current_index < 0 || current_index >= (moves.length - 1)) {
+				if (current_index === (moves.length - 1)) {
+					failed++;
+					failed_moves.push(moves[current_index]);
+				}
 				setState(STATES.Results);
 				setScore();
 				correct = 0;
@@ -332,6 +336,7 @@
 		});
 		yesBtn.addEventListener("click", () => {
 			if (current_index < 0 || current_index >= (moves.length - 1)) {
+				correct ++;
 				setState(STATES.Results);
 				setScore();
 				correct = 0;
